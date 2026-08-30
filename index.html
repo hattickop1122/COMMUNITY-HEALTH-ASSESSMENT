@@ -11,6 +11,23 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
+    /* --- Skeleton Loading --- */
+    .skeleton {
+      background: linear-gradient(90deg, #f5e8ed 25%, #fff 50%, #f5e8ed 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite linear;
+      border-radius: 20px;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skel-hero { height: 215px; margin-bottom: 22px; border-radius: 28px; }
+    .skel-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .skel-kpi-box { height: 115px; }
+    .skel-grid { display: grid; grid-template-columns: 1.35fr 0.9fr; gap: 18px; }
+    .skel-card-box { height: 350px; border-radius: 22px; }
+
     :root{
       --lotus:#e98db0; --lotus-dark:#b9567f; --lotus-soft:#fdebf3;
       --mint:#bcebe0; --lav:#ddd0f5; --cream:#fffafc; --ink:#392d36;
@@ -96,26 +113,45 @@
     </div>
 
     <section class="page active" id="page-dashboard">
-      <div class="hero">
-        <div class="hero-content">
-          <div class="eyebrow">COMMUNITY HEALTH ASSESSMENT</div>
-          <h2>เห็นภาพชุมชนในหน้าเดียว<br>จากข้อมูลสู่การลงมือแก้ปัญหา</h2>
-          <p>ระบบต้นแบบสำหรับเก็บแบบประเมินสุขภาพ วิเคราะห์กลุ่มเสี่ยง จัดลำดับปัญหา และติดตามการดำเนินงานของชุมชน เหมาะสำหรับ รพ.สต. และทีมสาธารณสุขระดับพื้นที่</p>
-          <div class="hero-tags"><span class="tag">Health Assessment</span><span class="tag">Risk Score</span><span class="tag">Community GIS</span><span class="tag">Auto Dashboard</span></div>
+      <!-- กล่อง Skeleton (แสดงตอนกำลังโหลด) -->
+      <div id="dashboard-skeleton">
+        <div class="skeleton skel-hero"></div>
+        <div class="skel-kpis">
+          <div class="skeleton skel-kpi-box"></div>
+          <div class="skeleton skel-kpi-box"></div>
+          <div class="skeleton skel-kpi-box"></div>
+          <div class="skeleton skel-kpi-box"></div>
+          <div class="skeleton skel-kpi-box"></div>
+        </div>
+        <div class="skel-grid">
+          <div class="skeleton skel-card-box"></div>
+          <div class="skeleton skel-card-box"></div>
         </div>
       </div>
 
-      <div class="kpis">
-        <div class="kpi"><div class="kpi-icon">♙</div><div class="kpi-label">ผู้ประเมินทั้งหมด</div><div class="kpi-value" id="kpiPeople">—</div><div class="kpi-note">ข้อมูลสะสมจาก Google Sheet</div></div>
-        <div class="kpi"><div class="kpi-icon">⌂</div><div class="kpi-label">ครัวเรือนที่สำรวจ</div><div class="kpi-value" id="kpiHouse">—</div><div class="kpi-note">นับจากเลขครัวเรือนที่ไม่ซ้ำ</div></div>
-        <div class="kpi"><div class="kpi-icon">♡</div><div class="kpi-label">ความเสี่ยงสูง</div><div class="kpi-value" id="kpiHigh">—</div><div class="kpi-note">จาก Risk Score</div></div>
-        <div class="kpi"><div class="kpi-icon">◉</div><div class="kpi-label">Coverage การประเมิน</div><div class="kpi-value" id="kpiCoverage">—</div><div class="kpi-note">คำนวณจากข้อมูลกลุ่มเป้าหมาย</div></div>
-        <div class="kpi"><div class="kpi-icon">⚑</div><div class="kpi-label">ปัญหาหลัก</div><div class="kpi-value" id="kpiProblem">—</div><div class="kpi-note">คะแนนสูงสุดจากแบบประเมิน</div></div>
-      </div>
+      <!-- กล่องเนื้อหาจริง (ซ่อนไว้ก่อน) -->
+      <div id="dashboard-actual" style="display: none;">
+        <div class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">COMMUNITY HEALTH ASSESSMENT</div>
+            <h2>เห็นภาพชุมชนในหน้าเดียว<br>จากข้อมูลสู่การลงมือแก้ปัญหา</h2>
+            <p>ระบบต้นแบบสำหรับเก็บแบบประเมินสุขภาพ วิเคราะห์กลุ่มเสี่ยง จัดลำดับปัญหา และติดตามการดำเนินงานของชุมชน เหมาะสำหรับ รพ.สต. และทีมสาธารณสุขระดับพื้นที่</p>
+            <div class="hero-tags"><span class="tag">Health Assessment</span><span class="tag">Risk Score</span><span class="tag">Community GIS</span><span class="tag">Auto Dashboard</span></div>
+          </div>
+        </div>
 
-      <div class="grid-2">
-        <div class="card"><div class="card-head"><div><h3>Top ปัญหาสุขภาพชุมชน</h3><div class="subtle">อ้างอิงคะแนนจากคำตอบ 20 ข้อ</div></div><span class="tag">Live</span></div><div id="problemBars" class="bars"></div></div>
-        <div class="card"><div class="card-head"><div><h3>Risk Overview</h3><div class="subtle">การกระจายระดับความเสี่ยง</div></div></div><div id="riskList" class="risk-list"></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="kpi-icon">♙</div><div class="kpi-label">ผู้ประเมินทั้งหมด</div><div class="kpi-value" id="kpiPeople">—</div><div class="kpi-note">ข้อมูลสะสะสมจาก Google Sheet</div></div>
+          <div class="kpi"><div class="kpi-icon">⌂</div><div class="kpi-label">ครัวเรือนที่สำรวจ</div><div class="kpi-value" id="kpiHouse">—</div><div class="kpi-note">นับจากเลขครัวเรือนที่ไม่ซ้ำ</div></div>
+          <div class="kpi"><div class="kpi-icon">♡</div><div class="kpi-label">ความเสี่ยงสูง</div><div class="kpi-value" id="kpiHigh">—</div><div class="kpi-note">จาก Risk Score</div></div>
+          <div class="kpi"><div class="kpi-icon">◉</div><div class="kpi-label">Coverage การประเมิน</div><div class="kpi-value" id="kpiCoverage">—</div><div class="kpi-note">คำนวณจากข้อมูลกลุ่มเป้าหมาย</div></div>
+          <div class="kpi"><div class="kpi-icon">⚑</div><div class="kpi-label">ปัญหาหลัก</div><div class="kpi-value" id="kpiProblem">—</div><div class="kpi-note">คะแนนสูงสุดจากแบบประเมิน</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card"><div class="card-head"><div><h3>Top ปัญหาสุขภาพชุมชน</h3><div class="subtle">อ้างอิงคะแนนจากคำตอบ 20 ข้อ</div></div><span class="tag">Live</span></div><div id="problemBars" class="bars"></div></div>
+          <div class="card"><div class="card-head"><div><h3>Risk Overview</h3><div class="subtle">การกระจายระดับความเสี่ยง</div></div></div><div id="riskList" class="risk-list"></div></div>
+        </div>
       </div>
     </section>
 
@@ -275,13 +311,23 @@
     script.onerror = ()=>{cb({ok:false,error:"เชื่อมต่อ GAS ไม่สำเร็จ"}); delete window[callback]; script.remove();};
     document.body.appendChild(script);
   }
+
   function loadSummary(){
+    // 1. แสดง Skeleton และซ่อนเนื้อหาจริง
+    document.getElementById('dashboard-skeleton').style.display = 'block';
+    document.getElementById('dashboard-actual').style.display = 'none';
+
     apiGet({action:"summary"}, data=>{
+      // 2. ปิด Skeleton และเปิดเนื้อหาจริงเมื่อข้อมูลมาถึง
+      document.getElementById('dashboard-skeleton').style.display = 'none';
+      document.getElementById('dashboard-actual').style.display = 'block';
+
       if(!data.ok){ showToast(data.error || "โหลด Dashboard ไม่สำเร็จ"); return; }
       state.summary=data;
       renderSummary(data);
     });
   }
+
   function renderSummary(d){
     document.getElementById("kpiPeople").textContent = (d.totalPeople||0).toLocaleString("th-TH");
     document.getElementById("kpiHouse").textContent = (d.households||0).toLocaleString("th-TH");
